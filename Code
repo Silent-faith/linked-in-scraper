@@ -1,0 +1,112 @@
+#import parameters
+from time import sleep
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from bs4 import BeautifulSoup as bs
+import mysql.connector
+
+
+def content(s) :
+    c = -1 
+    ans = ""
+    s = str(s)
+    for i in s :
+        if i == "<" :
+            c = -1 
+        if c != -1 :
+            ans += str(i)
+        if i == ">" :
+            c = 0
+    index = 0 
+    for i in range (len(ans)) :
+        if ans[i].isalpha() :
+            index = i 
+            break 
+    return ans[index:]
+            
+mydb = mysql.connector.connect(
+  host="***********************************************************" ,  # please enter your sql host name 
+  user= "**********************************************************" ,  # please enter your user name 
+  password= "******************************************************" ,  # please enter your password
+  database="*******************************************************"    # please enter your database name 
+)
+
+mycursor = mydb.cursor()
+
+
+
+
+
+driver = webdriver.Chrome('C:/Users/Abhishek Choudhary/.spyder-py3/chromedriver.exe')
+
+driver.get("https://www.linkedin.com/")
+
+username = "abhishekmahala28@gmail.com"
+password = "Ab@8882810"
+
+
+username_input = driver.find_element_by_css_selector("input[name = 'session_key']")
+password_input = driver.find_element_by_css_selector("input[name='session_password']")
+            
+username_input.send_keys(username)
+password_input.send_keys(password)
+            
+
+
+login_button =  driver.find_element_by_xpath("//button[@type='submit']")
+login_button.click()
+
+sleep(2)
+
+driver.get('https:www.google.com')
+sleep(3)
+
+search_query = driver.find_element_by_name('q')
+search_query.send_keys("Ankur Choudhary linkedin")
+sleep(0.5)
+
+search_query.send_keys(Keys.RETURN)
+sleep(3)
+
+
+source = driver.page_source
+data=bs(source, 'html.parser')
+
+
+
+data = data.find_all('div', class_='yuRUbf')
+
+links = []
+for i in data :
+    datas = i.find('a')
+    link = datas.get('href')
+    if link.find("https://www.linkedin.com/pub/dir/") != 0 :
+        links.append(link)
+
+
+for Link in links :
+    driver.get(Link)
+    
+    source = driver.page_source
+    data=bs(source, 'html.parser')
+    
+    name = data.find('li', class_='inline t-24 t-black t-normal break-words')
+    name = content(name)
+    
+    bio = data.find('h2', class_='mt1 t-18 t-black t-normal break-words')
+    bio = content(bio)
+
+    address = data.find('li', class_='t-16 t-black t-normal inline-block')
+    address = content(address)
+    
+    sql = "INSERT INTO customers (name, address, bio, link) VALUES (%s, %s, %s, %s)"
+    val = (name, address, bio, Link)
+    mycursor.execute(sql, val)
+    
+    mydb.commit()
+    
+    print(mycursor.rowcount, "record inserted.")
+    
+        
+
+driver.quit()
