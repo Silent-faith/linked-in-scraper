@@ -41,8 +41,8 @@ driver = webdriver.Chrome('C:/Users/Abhishek Choudhary/.spyder-py3/chromedriver.
 
 driver.get("https://www.linkedin.com/")
 
-username = "abhishekmahala28@gmail.com"
-password = "Ab@8882810"
+username = input("your emaild")
+password = input("please enter your passwords")
 
 
 username_input = driver.find_element_by_css_selector("input[name = 'session_key']")
