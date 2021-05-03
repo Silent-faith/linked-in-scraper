@@ -16,7 +16,7 @@ logging into the linked in profile
 
 
 username = "abhishekmahala28@gmail.com"
-password = "Ab@8882810"
+password = input()
 
 driver = webdriver.Chrome('C:/Users/Abhishek Choudhary/.spyder-py3/chromedriver.exe')
 driver.get("https://www.linkedin.com/")
